@@ -1,6 +1,9 @@
 name: 'Install cargo-prebuilt'
 description: 'Install cargo prebuilt to a runner'
 author: 'harmless-tech, crow-rest'
+branding:
+  icon: arrow-down-circle
+  color: gray-dark
 inputs:
   repo_token:
     description: 'GitHub token'
