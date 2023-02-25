@@ -17,6 +17,11 @@ inputs:
   always-install:
     description: 'if the current installed version of cargo-prebuilt should be overridden'
     default: 'false'
+outputs:
+  version:
+    description: 'version that was installed'
+  target:
+    description: 'target that was installed'
 runs:
   using: 'node16'
   main: 'dist/index.js'
