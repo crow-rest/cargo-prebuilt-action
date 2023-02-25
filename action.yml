@@ -2,10 +2,21 @@ name: 'Install cargo-prebuilt'
 description: 'Install cargo prebuilt to a runner'
 author: 'harmless-tech, crow-rest'
 inputs:
-  milliseconds: # change this
+  repo_token:
+    description: 'GitHub token'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    default: ${{ github.token }}
+  version:
+    required: true
+    description: 'version of cargo-prebuilt to use'
+    default: latest
+  target:
+    required: true
+    description: 'target for the version cargo-prebuilt to use'
+    default: current
+  always-install:
+    description: 'if the current installed version of cargo-prebuilt should be overridden'
+    default: 'false'
 runs:
   using: 'node16'
   main: 'dist/index.js'
