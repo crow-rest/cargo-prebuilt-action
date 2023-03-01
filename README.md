@@ -5,7 +5,6 @@
 
 ### Inputs
 
-- repo_token: Defaults to ${{ github.token }}
 - version: Defaults to latest
 - target: Defaults to current
 - always-install: Defaults to false
