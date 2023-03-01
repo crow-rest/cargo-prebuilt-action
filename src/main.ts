@@ -1,38 +1,30 @@
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import * as tc from '@actions/tool-cache'
-import * as octokit from '@octokit/core'
 import {currentTarget} from './utils'
 
 async function run(): Promise<void> {
   try {
-    const token: string = core.getInput('repo_token')
     let prebuiltVersion: string = core.getInput('version')
     let prebuiltTarget: string = core.getInput('target')
     const prebuiltOverride: string = core.getInput('always-install')
 
-    if (prebuiltOverride !== 'true') {
+    if (prebuiltOverride.toLowerCase() !== 'true') {
       const globber = await glob.create('~/.cargo/bin/cargo-prebuilt')
       const files = await globber.glob()
       if (files.length > 0) return
     }
 
     if (prebuiltVersion === 'latest') {
-      const kit = new octokit.Octokit({
-        auth: token
-      })
-      const info = await kit.request(
-        'GET /repos/{owner}/{repo}/releases/latest',
-        {
-          owner: 'crow-rest',
-          repo: 'cargo-prebuilt',
-          headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
-          }
-        }
+      const r = await fetch(
+        'https://github.com/crow-rest/cargo-prebuilt-index/releases/download/stable-index/cargo-prebuilt'
       )
 
-      prebuiltVersion = info.data.tag_name.substring(1)
+      if (r.ok) {
+        prebuiltVersion = await r.text()
+      } else {
+        throw new Error('Could not get latest version of cargo-prebuilt')
+      }
     }
 
     if (prebuiltTarget === 'current') {

@@ -5,20 +5,16 @@ branding:
   icon: arrow-down-circle
   color: gray-dark
 inputs:
-  repo_token:
-    description: 'GitHub token'
-    required: true
-    default: ${{ github.token }}
   version:
     required: true
-    description: 'version of cargo-prebuilt to use'
+    description: 'Version of cargo-prebuilt to use'
     default: latest
   target:
     required: true
-    description: 'target for the version cargo-prebuilt to use'
+    description: 'Target for the version cargo-prebuilt to use'
     default: current
   always-install:
-    description: 'if the current installed version of cargo-prebuilt should be overridden'
+    description: 'If the current installed version of cargo-prebuilt should be overridden'
     default: 'false'
 outputs:
   version:
