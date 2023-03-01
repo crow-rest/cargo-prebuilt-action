@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import * as tc from '@actions/tool-cache'
+import * as httpm from '@actions/http-client'
 import {currentTarget} from './utils'
 
 async function run(): Promise<void> {
@@ -16,12 +17,13 @@ async function run(): Promise<void> {
     }
 
     if (prebuiltVersion === 'latest') {
-      const r = await fetch(
+      const client = new httpm.HttpClient()
+      const res = await client.get(
         'https://github.com/crow-rest/cargo-prebuilt-index/releases/download/stable-index/cargo-prebuilt'
       )
 
-      if (r.ok) {
-        prebuiltVersion = await r.text()
+      if (res.message.statusCode === 200) {
+        prebuiltVersion = await res.readBody()
       } else {
         throw new Error('Could not get latest version of cargo-prebuilt')
       }

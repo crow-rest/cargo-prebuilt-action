@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const glob = __importStar(__nccwpck_require__(8090));
 const tc = __importStar(__nccwpck_require__(7784));
+const httpm = __importStar(__nccwpck_require__(6255));
 const utils_1 = __nccwpck_require__(918);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -56,9 +57,10 @@ function run() {
                     return;
             }
             if (prebuiltVersion === 'latest') {
-                const r = yield fetch('https://github.com/crow-rest/cargo-prebuilt-index/releases/download/stable-index/cargo-prebuilt');
-                if (r.ok) {
-                    prebuiltVersion = yield r.text();
+                const client = new httpm.HttpClient();
+                const res = yield client.get('https://github.com/crow-rest/cargo-prebuilt-index/releases/download/stable-index/cargo-prebuilt');
+                if (res.message.statusCode === 200) {
+                    prebuiltVersion = yield res.readBody();
                 }
                 else {
                     throw new Error('Could not get latest version of cargo-prebuilt');
