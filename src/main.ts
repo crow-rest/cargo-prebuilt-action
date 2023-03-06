@@ -39,8 +39,7 @@ async function run(): Promise<void> {
     if (directory === '') {
       let url
       if (prebuiltVersion === 'latest')
-        url =
-          'https://github.com/crow-rest/cargo-prebuilt/releases/latest/download/${prebuiltTarget}${fileEnding}'
+        url = `https://github.com/crow-rest/cargo-prebuilt/releases/latest/download/${prebuiltTarget}${fileEnding}`
       else
         url = `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
 
