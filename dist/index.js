@@ -63,7 +63,7 @@ function run() {
             }
             if (prebuiltVersion === 'latest') {
                 const out = yield exec.getExecOutput('git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git');
-                const re = /([0-9]\.[0-9]\.[0.9])/;
+                const re = /([0-9]\.[0-9]\.[0.9])/g;
                 const tmp = [...out.stdout.matchAll(re)].map(a => {
                     return a[0];
                 });
