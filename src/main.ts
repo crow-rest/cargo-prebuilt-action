@@ -21,6 +21,12 @@ async function run(): Promise<void> {
       const files = await globber.glob()
       if (files.length > 0) return
     }
+    if (prebuiltVersion === 'latest') {
+      const out = await exec.getExecOutput(
+        "git ls-remote --tags https://github.com/crow-rest/cargo-prebuilt.git | grep -o 'refs/tags/v[0-9]*\\.[0-9]*\\.[0-9]*' | sort -r | head -n 1 | cut -c 12-"
+      )
+      prebuiltVersion = out.stdout
+    }
     if (prebuiltTarget === 'current') {
       prebuiltTarget = await currentTarget()
     }
@@ -37,13 +43,9 @@ async function run(): Promise<void> {
     core.addPath(directory)
 
     if (directory === '') {
-      let url
-      if (prebuiltVersion === 'latest')
-        url = `https://github.com/crow-rest/cargo-prebuilt/releases/latest/download/${prebuiltTarget}${fileEnding}`
-      else
-        url = `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
-
-      const prebuiltPath = await tc.downloadTool(url)
+      const prebuiltPath = await tc.downloadTool(
+        `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
+      )
 
       let prebuiltExtracted
       if (prebuiltTarget.includes('windows')) {
@@ -56,24 +58,6 @@ async function run(): Promise<void> {
           prebuiltPath,
           '~/.cargo-prebuilt/prebuilt'
         )
-      }
-
-      if (prebuiltVersion === 'latest') {
-        let out = ''
-        const options = {}
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        options.listeners = {
-          stdout: (data: Buffer) => {
-            out += data.toString()
-          }
-        }
-        await exec.exec(
-          `${prebuiltExtracted}/cargo-prebuilt`,
-          ['--version'],
-          options
-        )
-        prebuiltVersion = out
       }
 
       const cachedPath = await tc.cacheDir(
