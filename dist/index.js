@@ -113,6 +113,7 @@ function run() {
                             throw new Error(`Could not get latest version of ${s[0]} from cargo-prebuilt-index`);
                         }
                     }
+                    version = version.trim();
                     const toolDir = tc.find(s[0], version, target);
                     core.debug(`Found ${s[0]} tool cache at ${toolDir}`);
                     core.addPath(toolDir);
