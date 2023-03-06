@@ -105,6 +105,7 @@ function run() {
                 directory = cachedPath;
             }
             // Handle tool downloads
+            let installedTools = '';
             if (prebuiltTools !== '') {
                 const tools = prebuiltTools.split(',');
                 let target = prebuiltTarget;
@@ -139,9 +140,11 @@ function run() {
                         });
                         const cachedPath = yield tc.cacheDir(dir, s[0], version, target);
                         core.addPath(cachedPath);
+                        installedTools += `${s[0]}@${version}`;
                     }
                 }
             }
+            core.setOutput("tools-installed", installedTools);
         }
         catch (error) {
             if (error instanceof Error)

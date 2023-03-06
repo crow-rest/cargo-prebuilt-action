@@ -90,6 +90,7 @@ async function run(): Promise<void> {
     }
 
     // Handle tool downloads
+    let installedTools = ''
     if (prebuiltTools !== '') {
       const tools = prebuiltTools.split(',')
       let target = prebuiltTarget
@@ -135,9 +136,12 @@ async function run(): Promise<void> {
 
           const cachedPath = await tc.cacheDir(dir, s[0], version, target)
           core.addPath(cachedPath)
+          installedTools += `${s[0]}@${version}`
         }
       }
     }
+
+    core.setOutput('tools-installed', installedTools)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
