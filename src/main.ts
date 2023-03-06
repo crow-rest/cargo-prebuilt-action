@@ -25,10 +25,11 @@ async function run(): Promise<void> {
       const out = await exec.getExecOutput(
         'git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git'
       )
+
       const re = /([0-9]\.[0-9]\.[0.9])/
-      const tmp = out.stdout.match(re)
-      if (tmp === null)
-        throw new Error('Could not get latest version tag for cargo-prebuilt.')
+      const tmp = [...out.stdout.matchAll(re)].map(a => {
+        return a[0]
+      })
 
       const latest = tmp.sort((a, b) => {
         if (a === b) return 0
