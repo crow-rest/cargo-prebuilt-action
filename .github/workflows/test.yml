@@ -42,5 +42,5 @@ jobs:
       - uses: ./
         with:
           version: 0.4.0
-      - run: "[[ \"$(cargo prebuilt --version)\" != \"0.4.0\" ]]"
+      - run: "[[ \"$(cargo prebuilt --version)\" == \"0.4.0\" ]]"
 
