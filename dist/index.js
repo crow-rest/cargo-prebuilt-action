@@ -49,7 +49,7 @@ const utils_1 = __nccwpck_require__(918);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const prebuiltVersion = core.getInput('version');
+            let prebuiltVersion = core.getInput('version');
             let prebuiltTarget = core.getInput('target');
             const prebuiltOverride = core.getInput('always-install');
             const prebuiltTools = core.getInput('tools');
@@ -79,18 +79,29 @@ function run() {
                 else
                     url = `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`;
                 const prebuiltPath = yield tc.downloadTool(url);
+                let prebuiltExtracted;
                 if (prebuiltTarget.includes('windows')) {
-                    const prebuiltExtracted = yield tc.extractZip(prebuiltPath, '~/.cargo-prebuilt/prebuilt');
-                    const cachedPath = yield tc.cacheDir(prebuiltExtracted, 'cargo-prebuilt', prebuiltVersion, prebuiltTarget);
-                    core.addPath(cachedPath);
-                    directory = cachedPath;
+                    prebuiltExtracted = yield tc.extractZip(prebuiltPath, '~/.cargo-prebuilt/prebuilt');
                 }
                 else {
-                    const prebuiltExtracted = yield tc.extractTar(prebuiltPath, '~/.cargo-prebuilt/prebuilt');
-                    const cachedPath = yield tc.cacheDir(prebuiltExtracted, 'cargo-prebuilt', prebuiltVersion, prebuiltTarget);
-                    core.addPath(cachedPath);
-                    directory = cachedPath;
+                    prebuiltExtracted = yield tc.extractTar(prebuiltPath, '~/.cargo-prebuilt/prebuilt');
                 }
+                if (prebuiltVersion === 'latest') {
+                    let out = '';
+                    const options = {};
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    options.listeners = {
+                        stdout: (data) => {
+                            out += data.toString();
+                        }
+                    };
+                    yield exec.exec(`${prebuiltExtracted}/cargo-prebuilt`, ['--version'], options);
+                    prebuiltVersion = out;
+                }
+                const cachedPath = yield tc.cacheDir(prebuiltExtracted, 'cargo-prebuilt', prebuiltVersion, prebuiltTarget);
+                core.addPath(cachedPath);
+                directory = cachedPath;
             }
             // Handle tool downloads
             if (prebuiltTools !== '') {

@@ -8,7 +8,7 @@ import {currentTarget} from './utils'
 
 async function run(): Promise<void> {
   try {
-    const prebuiltVersion: string = core.getInput('version')
+    let prebuiltVersion: string = core.getInput('version')
     let prebuiltTarget: string = core.getInput('target')
     const prebuiltOverride: string = core.getInput('always-install')
     const prebuiltTools: string = core.getInput('tools')
@@ -45,35 +45,46 @@ async function run(): Promise<void> {
 
       const prebuiltPath = await tc.downloadTool(url)
 
+      let prebuiltExtracted
       if (prebuiltTarget.includes('windows')) {
-        const prebuiltExtracted = await tc.extractZip(
+        prebuiltExtracted = await tc.extractZip(
           prebuiltPath,
           '~/.cargo-prebuilt/prebuilt'
         )
-        const cachedPath = await tc.cacheDir(
-          prebuiltExtracted,
-          'cargo-prebuilt',
-          prebuiltVersion,
-          prebuiltTarget
-        )
-
-        core.addPath(cachedPath)
-        directory = cachedPath
       } else {
-        const prebuiltExtracted = await tc.extractTar(
+        prebuiltExtracted = await tc.extractTar(
           prebuiltPath,
           '~/.cargo-prebuilt/prebuilt'
         )
-        const cachedPath = await tc.cacheDir(
-          prebuiltExtracted,
-          'cargo-prebuilt',
-          prebuiltVersion,
-          prebuiltTarget
-        )
-
-        core.addPath(cachedPath)
-        directory = cachedPath
       }
+
+      if (prebuiltVersion === 'latest') {
+        let out = ''
+        const options = {}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        options.listeners = {
+          stdout: (data: Buffer) => {
+            out += data.toString()
+          }
+        }
+        await exec.exec(
+          `${prebuiltExtracted}/cargo-prebuilt`,
+          ['--version'],
+          options
+        )
+        prebuiltVersion = out
+      }
+
+      const cachedPath = await tc.cacheDir(
+        prebuiltExtracted,
+        'cargo-prebuilt',
+        prebuiltVersion,
+        prebuiltTarget
+      )
+
+      core.addPath(cachedPath)
+      directory = cachedPath
     }
 
     // Handle tool downloads
