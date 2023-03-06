@@ -120,7 +120,7 @@ function run() {
                     if (toolDir === '') {
                         const dir = `~/.cargo-prebuilt/tools/${s[0]}/${version}`;
                         yield io.mkdirP(dir);
-                        yield exec.exec(`${directory}/cargo-prebuilt`, ['--on-bin', '--ci', `${s[0]}@${version}`], {
+                        yield exec.exec(`${directory}/cargo-prebuilt`, ['--no-bin', '--ci', `${s[0]}@${version}`], {
                             env: {
                                 CARGO_HOME: dir
                             }

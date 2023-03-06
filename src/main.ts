@@ -112,7 +112,7 @@ async function run(): Promise<void> {
           await io.mkdirP(dir)
           await exec.exec(
             `${directory}/cargo-prebuilt`,
-            ['--on-bin', '--ci', `${s[0]}@${version}`],
+            ['--no-bin', '--ci', `${s[0]}@${version}`],
             {
               env: {
                 CARGO_HOME: dir
