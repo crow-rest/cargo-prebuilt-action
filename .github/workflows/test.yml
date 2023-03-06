@@ -73,5 +73,7 @@ jobs:
       - uses: ./
         with:
           tools: just,bacon@2.6.0,just@1.8.0
-      - run: "[[ \"$(just --version)\" == \"just 1.8.0\" ]]"
-      - run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
+      - shell: bash
+        run: "[[ \"$(just --version)\" == \"just 1.8.0\" ]]"
+      - shell: bash
+        run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
