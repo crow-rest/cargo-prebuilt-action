@@ -78,7 +78,7 @@ function run() {
                         return 1;
                     return -1;
                 });
-                prebuiltVersion = latest[latest.length - 1];
+                prebuiltVersion = latest[0];
             }
             if (prebuiltTarget === 'current') {
                 prebuiltTarget = yield (0, utils_1.currentTarget)();

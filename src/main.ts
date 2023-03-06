@@ -42,7 +42,7 @@ async function run(): Promise<void> {
           return 1
         return -1
       })
-      prebuiltVersion = latest[latest.length - 1]
+      prebuiltVersion = latest[0]
     }
     if (prebuiltTarget === 'current') {
       prebuiltTarget = await currentTarget()
