@@ -62,7 +62,8 @@ function run() {
                     return;
             }
             if (prebuiltVersion === 'latest') {
-                const out = yield exec.getExecOutput("git ls-remote --tags https://github.com/crow-rest/cargo-prebuilt.git | grep -o 'refs/tags/v[0-9]*\\.[0-9]*\\.[0-9]*' | sort -r | head -n 1 | cut -c 12-");
+                yield exec.getExecOutput('git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git');
+                const out = yield exec.getExecOutput("git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git | grep -o 'refs/tags/v[0-9]*\\.[0-9]*\\.[0-9]*' | sort -r | head -n 1 | cut -c 12-");
                 prebuiltVersion = out.stdout;
             }
             if (prebuiltTarget === 'current') {

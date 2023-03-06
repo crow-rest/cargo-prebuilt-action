@@ -22,8 +22,11 @@ async function run(): Promise<void> {
       if (files.length > 0) return
     }
     if (prebuiltVersion === 'latest') {
+      await exec.getExecOutput(
+        'git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git'
+      )
       const out = await exec.getExecOutput(
-        "git ls-remote --tags https://github.com/crow-rest/cargo-prebuilt.git | grep -o 'refs/tags/v[0-9]*\\.[0-9]*\\.[0-9]*' | sort -r | head -n 1 | cut -c 12-"
+        "git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git | grep -o 'refs/tags/v[0-9]*\\.[0-9]*\\.[0-9]*' | sort -r | head -n 1 | cut -c 12-"
       )
       prebuiltVersion = out.stdout
     }

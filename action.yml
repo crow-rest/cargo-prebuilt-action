@@ -21,7 +21,7 @@ inputs:
     default: ''
   always-install:
     description: 'If the current installed version of cargo-prebuilt should be overridden'
-    default: 'false'
+    default: 'true'
 outputs:
   version:
     description: 'version that was installed'
