@@ -11,8 +11,14 @@ inputs:
     default: latest
   target:
     required: true
-    description: 'Target for the version cargo-prebuilt to use'
+    description: 'Target for the version of cargo-prebuilt to install'
     default: current
+  tools:
+    description: 'A CSV list of tools needed with optional version numbers (see cargo-prebuilt cli)'
+    default: ''
+  tools-target:
+    description: 'Target for the version of the tools to install'
+    default: ''
   always-install:
     description: 'If the current installed version of cargo-prebuilt should be overridden'
     default: 'false'

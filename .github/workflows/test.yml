@@ -21,18 +21,21 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
       - run: cargo prebuilt just
+      - run: just --version
   test-macos: # make sure the action works on a clean machine without building
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
       - run: cargo prebuilt just
+      - run: just --version
   test-windows: # make sure the action works on a clean machine without building
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
       - run: cargo prebuilt just
+      - run: just --version
   test-version: # make sure that the right version can be downloaded
     runs-on: ubuntu-latest
     steps:
@@ -43,4 +46,34 @@ jobs:
         with:
           version: 0.4.0
       - run: "[[ \"$(cargo prebuilt --version)\" == \"0.4.0\" ]]"
-
+  test-linux-tools: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          tools: just,rtx-cli@1.21.5,bacon@2.6.0
+      - run: just --version
+      - run: rtx --version
+      - run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
+  test-macos-tools: # make sure the action works on a clean machine without building
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          tools: just,rtx-cli@1.21.5,bacon@2.6.0
+      - run: cargo prebuilt just
+      - run: just --version
+      - run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
+  test-windows-tools: # make sure the action works on a clean machine without building
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          tools: just,rtx-cli@1.21.5,bacon@2.6.0
+      - run: cargo prebuilt just
+      - run: just --version
+      - run: rtx --version
+      - run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"

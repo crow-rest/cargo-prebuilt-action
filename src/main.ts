@@ -2,33 +2,24 @@ import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import * as tc from '@actions/tool-cache'
 import * as httpm from '@actions/http-client'
+// import * as exec from '@actions/exec'
 import {currentTarget} from './utils'
 
 async function run(): Promise<void> {
   try {
-    let prebuiltVersion: string = core.getInput('version')
+    const prebuiltVersion: string = core.getInput('version')
     let prebuiltTarget: string = core.getInput('target')
     const prebuiltOverride: string = core.getInput('always-install')
+    const prebuiltTools: string = core.getInput('tools')
+    const prebuiltToolsTarget: string = core.getInput('tools-target')
+
+    const client = new httpm.HttpClient()
 
     if (prebuiltOverride.toLowerCase() !== 'true') {
       const globber = await glob.create('~/.cargo/bin/cargo-prebuilt')
       const files = await globber.glob()
       if (files.length > 0) return
     }
-
-    if (prebuiltVersion === 'latest') {
-      const client = new httpm.HttpClient()
-      const res = await client.get(
-        'https://github.com/crow-rest/cargo-prebuilt-index/releases/download/stable-index/cargo-prebuilt'
-      )
-
-      if (res.message.statusCode === 200) {
-        prebuiltVersion = await res.readBody()
-      } else {
-        throw new Error('Could not get latest version of cargo-prebuilt')
-      }
-    }
-
     if (prebuiltTarget === 'current') {
       prebuiltTarget = await currentTarget()
     }
@@ -39,9 +30,10 @@ async function run(): Promise<void> {
     const fileEnding: string = prebuiltTarget.includes('windows')
       ? '.zip'
       : '.tar.gz'
+    // const exeEnding: string = prebuiltTarget.includes('windows') ? '.exe' : ''
 
-    const directory = tc.find('cargo-prebuilt', prebuiltVersion, prebuiltTarget)
-    core.debug(directory)
+    let directory = tc.find('cargo-prebuilt', prebuiltVersion, prebuiltTarget)
+    core.debug(`Found cargo-prebuilt tool cache at ${directory}`)
     core.addPath(directory)
 
     if (directory === '') {
@@ -63,7 +55,9 @@ async function run(): Promise<void> {
           prebuiltVersion,
           prebuiltTarget
         )
+
         core.addPath(cachedPath)
+        directory = cachedPath
       } else {
         const prebuiltExtracted = await tc.extractTar(
           prebuiltPath,
@@ -75,7 +69,48 @@ async function run(): Promise<void> {
           prebuiltVersion,
           prebuiltTarget
         )
+
         core.addPath(cachedPath)
+        directory = cachedPath
+      }
+    }
+
+    // Handle tool downloads
+    if (prebuiltTools !== '') {
+      const tools = prebuiltTools.split(',')
+      let target = prebuiltTarget
+      if (prebuiltToolsTarget !== '') target = prebuiltToolsTarget
+
+      for (const tool of tools) {
+        const s = tool.split('@')
+
+        let version
+        if (s.length > 1) {
+          version = s[1]
+        } else {
+          const res = await client.get(
+            `https://github.com/crow-rest/cargo-prebuilt-index/releases/download/stable-index/${s[0]}`
+          )
+          if (res.message.statusCode === 200) {
+            version = await res.readBody()
+          } else {
+            throw new Error(
+              `Could not get latest version of ${s[0]} from cargo-prebuilt-index`
+            )
+          }
+        }
+
+        const file = tc.find(s[0], version, target)
+        core.debug(`Found cargo-prebuilt tool cache at ${file}`)
+        // core.addPath(file)
+
+        if (directory === '') {
+          const toolPath = await tc.downloadTool(
+            `https://github.com/crow-rest/cargo-prebuilt-index/releases/download/${s[0]}-${version}/${target}.tar.gz`
+          )
+          const toolExtracted = await tc.extractTar(toolPath, '~/.cargo/bin')
+          await tc.cacheDir(toolExtracted, s[0], version, target)
+        }
       }
     }
   } catch (error) {
