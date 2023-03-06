@@ -22,13 +22,27 @@ async function run(): Promise<void> {
       if (files.length > 0) return
     }
     if (prebuiltVersion === 'latest') {
-      await exec.getExecOutput(
+      const out = await exec.getExecOutput(
         'git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git'
       )
-      const out = await exec.getExecOutput(
-        "git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git | grep -o 'refs/tags/v[0-9]*\\.[0-9]*\\.[0-9]*' | sort -r | head -n 1 | cut -c 12-"
-      )
-      prebuiltVersion = out.stdout
+      const re = /v([0-9]\.[0-9]\.[0.9])/
+      const tmp = out.stdout.match(re)
+      if (tmp === null)
+        throw new Error('Could not get latest version tag for cargo-prebuilt.')
+
+      const latest = tmp.sort((a, b) => {
+        if (a === b) return 0
+        const as = a.split('.')
+        const bs = b.split('.')
+        if (
+          as[0] > bs[0] ||
+          (as[0] === bs[0] && as[1] > bs[1]) ||
+          (as[0] === bs[0] && as[1] === bs[1] && as[2] > bs[2])
+        )
+          return 1
+        return -1
+      })
+      prebuiltVersion = latest[latest.length - 1]
     }
     if (prebuiltTarget === 'current') {
       prebuiltTarget = await currentTarget()
