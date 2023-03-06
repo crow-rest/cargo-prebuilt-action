@@ -18,7 +18,7 @@ inputs:
     default: ''
   tools-target:
     description: 'Target for the version of the tools to install'
-    default: ''
+    default: current
   always-install:
     description: 'If the current installed version of cargo-prebuilt should be overridden'
     default: 'true'

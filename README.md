@@ -7,12 +7,15 @@
 
 - version: Defaults to latest
 - target: Defaults to current
-- always-install: Defaults to false
+- tools: Defaults to ''
+- tools-target: Defaults to current
+- always-install: Defaults to true
 
 ### Outputs
 
 - version
 - target
+- tools-installed
 
 ### Usage
 

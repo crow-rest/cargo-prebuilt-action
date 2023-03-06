@@ -109,7 +109,7 @@ function run() {
             if (prebuiltTools !== '') {
                 const tools = prebuiltTools.split(',');
                 let target = prebuiltTarget;
-                if (prebuiltToolsTarget !== '')
+                if (prebuiltToolsTarget !== 'current')
                     target = prebuiltToolsTarget;
                 for (const tool of tools) {
                     const s = tool.split('@');
