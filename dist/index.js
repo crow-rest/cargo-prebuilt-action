@@ -144,7 +144,7 @@ function run() {
                     }
                 }
             }
-            core.setOutput("tools-installed", installedTools);
+            core.setOutput('tools-installed', installedTools);
         }
         catch (error) {
             if (error instanceof Error)
