@@ -77,3 +77,15 @@ jobs:
         run: "[[ \"$(just --version)\" == \"just 1.8.0\" ]]"
       - shell: bash
         run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
+  test-dup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          tools: just@1.8.0
+      - run: "[[ \"$(just --version)\" == \"just 1.8.0\" ]]"
+      - uses: ./
+        with:
+          tools: just@1.8.0
+      - run: "[[ \"$(just --version)\" == \"just 1.8.0\" ]]"
