@@ -63,7 +63,7 @@ function run() {
             }
             if (prebuiltVersion === 'latest') {
                 const out = yield exec.getExecOutput('git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git');
-                const re = /v([0-9]\.[0-9]\.[0.9])/;
+                const re = /([0-9]\.[0-9]\.[0.9])/;
                 const tmp = out.stdout.match(re);
                 if (tmp === null)
                     throw new Error('Could not get latest version tag for cargo-prebuilt.');
