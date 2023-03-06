@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as glob from '@actions/glob'
 import * as tc from '@actions/tool-cache'
 import * as httpm from '@actions/http-client'
-// import * as exec from '@actions/exec'
+import * as exec from '@actions/exec'
 import {currentTarget} from './utils'
 
 async function run(): Promise<void> {
@@ -30,7 +30,6 @@ async function run(): Promise<void> {
     const fileEnding: string = prebuiltTarget.includes('windows')
       ? '.zip'
       : '.tar.gz'
-    // const exeEnding: string = prebuiltTarget.includes('windows') ? '.exe' : ''
 
     let directory = tc.find('cargo-prebuilt', prebuiltVersion, prebuiltTarget)
     core.debug(`Found cargo-prebuilt tool cache at ${directory}`)
@@ -48,7 +47,7 @@ async function run(): Promise<void> {
       if (prebuiltTarget.includes('windows')) {
         const prebuiltExtracted = await tc.extractZip(
           prebuiltPath,
-          '~/.cargo-prebuilt'
+          '~/.cargo-prebuilt/prebuilt'
         )
         const cachedPath = await tc.cacheDir(
           prebuiltExtracted,
@@ -62,7 +61,7 @@ async function run(): Promise<void> {
       } else {
         const prebuiltExtracted = await tc.extractTar(
           prebuiltPath,
-          '~/.cargo-prebuilt'
+          '~/.cargo-prebuilt/prebuilt'
         )
         const cachedPath = await tc.cacheDir(
           prebuiltExtracted,
@@ -101,16 +100,24 @@ async function run(): Promise<void> {
           }
         }
 
-        const file = tc.find(s[0], version, target)
-        core.debug(`Found cargo-prebuilt tool cache at ${file}`)
-        // core.addPath(file)
+        const toolDir = tc.find(s[0], version, target)
+        core.debug(`Found ${s[0]} tool cache at ${toolDir}`)
+        core.addPath(toolDir)
 
-        if (directory === '') {
-          const toolPath = await tc.downloadTool(
-            `https://github.com/crow-rest/cargo-prebuilt-index/releases/download/${s[0]}-${version}/${target}.tar.gz`
+        if (toolDir === '') {
+          const dir = `~/.cargo-prebuilt/tools/${s[0]}/${version}`
+          await exec.exec(
+            `${directory}/cargo-prebuilt`,
+            ['--on-bin', '--ci', `${s[0]}@${version}`],
+            {
+              env: {
+                CARGO_HOME: dir
+              }
+            }
           )
-          const toolExtracted = await tc.extractTar(toolPath, '~/.cargo/bin')
-          await tc.cacheDir(toolExtracted, s[0], version, target)
+
+          const cachedPath = await tc.cacheDir(dir, s[0], version, target)
+          core.addPath(cachedPath)
         }
       }
     }
