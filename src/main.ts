@@ -45,8 +45,11 @@ async function run(): Promise<void> {
     core.addPath(directory)
 
     if (directory === '') {
+      let v = prebuiltVersion
+      if (v !== 'latest') v = `v${v}`
+
       const prebuiltPath = await tc.downloadTool(
-        `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
+        `https://github.com/crow-rest/cargo-prebuilt/releases/download/${v}/${prebuiltTarget}${fileEnding}`
       )
 
       if (prebuiltTarget.includes('windows')) {

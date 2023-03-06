@@ -15,9 +15,32 @@ jobs:
           npm install
       - run: |
           npm run all
-  test: # make sure the action works on a clean machine without building
+  test-linux: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
       - run: cargo prebuilt just
+  test-macos: # make sure the action works on a clean machine without building
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: cargo prebuilt just
+  test-windows: # make sure the action works on a clean machine without building
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: cargo prebuilt just
+  test-version: # make sure that the right version can be downloaded
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+      - run: "[[ \"$(cargo prebuilt --version)\" != \"\" ]]"
+      - uses: ./
+        with:
+          version: 0.4.0
+      - run: "[[ \"$(cargo prebuilt --version)\" != \"0.4.0\" ]]"
+

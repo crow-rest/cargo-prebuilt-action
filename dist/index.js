@@ -78,7 +78,10 @@ function run() {
             core.debug(directory);
             core.addPath(directory);
             if (directory === '') {
-                const prebuiltPath = yield tc.downloadTool(`https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`);
+                let v = prebuiltVersion;
+                if (v !== 'latest')
+                    v = `v${v}`;
+                const prebuiltPath = yield tc.downloadTool(`https://github.com/crow-rest/cargo-prebuilt/releases/download/${v}/${prebuiltTarget}${fileEnding}`);
                 if (prebuiltTarget.includes('windows')) {
                     const prebuiltExtracted = yield tc.extractZip(prebuiltPath, '~/.cargo-prebuilt');
                     const cachedPath = yield tc.cacheDir(prebuiltExtracted, 'cargo-prebuilt', prebuiltVersion, prebuiltTarget);
