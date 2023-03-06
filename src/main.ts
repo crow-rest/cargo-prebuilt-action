@@ -3,6 +3,7 @@ import * as glob from '@actions/glob'
 import * as tc from '@actions/tool-cache'
 import * as httpm from '@actions/http-client'
 import * as exec from '@actions/exec'
+import * as io from '@actions/io'
 import {currentTarget} from './utils'
 
 async function run(): Promise<void> {
@@ -106,6 +107,7 @@ async function run(): Promise<void> {
 
         if (toolDir === '') {
           const dir = `~/.cargo-prebuilt/tools/${s[0]}/${version}`
+          await io.mkdirP(dir)
           await exec.exec(
             `${directory}/cargo-prebuilt`,
             ['--on-bin', '--ci', `${s[0]}@${version}`],

@@ -44,6 +44,7 @@ const glob = __importStar(__nccwpck_require__(8090));
 const tc = __importStar(__nccwpck_require__(7784));
 const httpm = __importStar(__nccwpck_require__(6255));
 const exec = __importStar(__nccwpck_require__(1514));
+const io = __importStar(__nccwpck_require__(7436));
 const utils_1 = __nccwpck_require__(918);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -117,6 +118,7 @@ function run() {
                     core.addPath(toolDir);
                     if (toolDir === '') {
                         const dir = `~/.cargo-prebuilt/tools/${s[0]}/${version}`;
+                        yield io.mkdirP(dir);
                         yield exec.exec(`${directory}/cargo-prebuilt`, ['--on-bin', '--ci', `${s[0]}@${version}`], {
                             env: {
                                 CARGO_HOME: dir
