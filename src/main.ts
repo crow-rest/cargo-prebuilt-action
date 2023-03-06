@@ -37,12 +37,14 @@ async function run(): Promise<void> {
     core.addPath(directory)
 
     if (directory === '') {
-      let v = prebuiltVersion
-      if (v !== 'latest') v = `v${v}`
+      let url
+      if (prebuiltVersion === 'latest')
+        url =
+          'https://github.com/crow-rest/cargo-prebuilt/releases/latest/download/${prebuiltTarget}${fileEnding}'
+      else
+        url = `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
 
-      const prebuiltPath = await tc.downloadTool(
-        `https://github.com/crow-rest/cargo-prebuilt/releases/download/${v}/${prebuiltTarget}${fileEnding}`
-      )
+      const prebuiltPath = await tc.downloadTool(url)
 
       if (prebuiltTarget.includes('windows')) {
         const prebuiltExtracted = await tc.extractZip(
