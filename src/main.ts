@@ -9,6 +9,7 @@ import {currentTarget} from './utils'
 async function run(): Promise<void> {
   try {
     let prebuiltVersion: string = core.getInput('version')
+    let fallbackVersion: string | undefined
     let prebuiltTarget: string = core.getInput('target')
     const prebuiltOverride: string = core.getInput('always-install')
     const prebuiltTools: string = core.getInput('tools')
@@ -26,7 +27,7 @@ async function run(): Promise<void> {
         'git ls-remote --tags --refs https://github.com/crow-rest/cargo-prebuilt.git'
       )
 
-      const re = /([0-9]\.[0-9]\.[0.9])/g
+      const re = /([0-9]\.[0-9]\.[0-9])/g
       const tmp = [...out.stdout.matchAll(re)].map(a => {
         return a[0]
       })
@@ -44,6 +45,10 @@ async function run(): Promise<void> {
         return -1
       })
       prebuiltVersion = latest[latest.length - 1]
+      fallbackVersion = latest[latest.length - 2]
+      core.info(
+        `Picked cargo-prebuilt version ${prebuiltVersion} with fallback version ${fallbackVersion}`
+      )
     }
     if (prebuiltTarget === 'current') {
       prebuiltTarget = await currentTarget()
@@ -61,6 +66,7 @@ async function run(): Promise<void> {
     core.addPath(directory)
 
     if (directory === '') {
+      prebuiltVersion = '1.0.0'
       const prebuiltPath = await tc.downloadTool(
         `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
       )
