@@ -95,8 +95,15 @@ function run() {
             core.debug(`Found cargo-prebuilt tool cache at ${directory}`);
             core.addPath(directory);
             if (directory === '') {
+                // TODO: Remove!
                 prebuiltVersion = '1.0.0';
-                const prebuiltPath = yield tc.downloadTool(`https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`);
+                let prebuiltPath;
+                try {
+                    prebuiltPath = yield tc.downloadTool(`https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`);
+                }
+                catch (_a) {
+                    prebuiltPath = yield tc.downloadTool(`https://github.com/crow-rest/cargo-prebuilt/releases/download/v${fallbackVersion}/${prebuiltTarget}${fileEnding}`);
+                }
                 let prebuiltExtracted;
                 if (prebuiltTarget.includes('windows')) {
                     prebuiltExtracted = yield tc.extractZip(prebuiltPath, '~/.cargo-prebuilt/prebuilt');

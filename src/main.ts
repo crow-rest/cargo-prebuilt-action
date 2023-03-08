@@ -66,10 +66,19 @@ async function run(): Promise<void> {
     core.addPath(directory)
 
     if (directory === '') {
+      // TODO: Remove!
       prebuiltVersion = '1.0.0'
-      const prebuiltPath = await tc.downloadTool(
-        `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
-      )
+
+      let prebuiltPath
+      try {
+        prebuiltPath = await tc.downloadTool(
+          `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
+        )
+      } catch {
+        prebuiltPath = await tc.downloadTool(
+          `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${fallbackVersion}/${prebuiltTarget}${fileEnding}`
+        )
+      }
 
       let prebuiltExtracted
       if (prebuiltTarget.includes('windows')) {
