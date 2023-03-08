@@ -3,6 +3,13 @@
 
 [![build-test](https://github.com/crow-rest/cargo-prebuilt-action/actions/workflows/test.yml/badge.svg)](https://github.com/crow-rest/cargo-prebuilt-action/actions/workflows/test.yml)
 
+Installs cargo-prebuilt and the crates you pass to it, it also uses the tool 
+cache to store all downloaded items.
+
+See:
+- [cargo-prebuilt](https://github.com/crow-rest/cargo-prebuilt)
+- [cargo-prebuilt-index](https://github.com/crow-rest/cargo-prebuilt-index)
+
 ### Inputs
 
 - version: Defaults to latest

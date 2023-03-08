@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-import * as glob from '@actions/glob'
 import * as tc from '@actions/tool-cache'
 import * as httpm from '@actions/http-client'
 import * as exec from '@actions/exec'
@@ -18,9 +17,8 @@ async function run(): Promise<void> {
     const client = new httpm.HttpClient()
 
     if (prebuiltOverride.toLowerCase() !== 'true') {
-      const globber = await glob.create('~/.cargo/bin/cargo-prebuilt')
-      const files = await globber.glob()
-      if (files.length > 0) return
+      const which = await io.which('cargo-prebuilt', true)
+      if (which !== '') return
     }
     if (prebuiltVersion === 'latest') {
       const out = await exec.getExecOutput(
@@ -66,18 +64,18 @@ async function run(): Promise<void> {
     core.addPath(directory)
 
     if (directory === '') {
-      // TODO: Remove!
-      prebuiltVersion = '1.0.0'
-
       let prebuiltPath
       try {
         prebuiltPath = await tc.downloadTool(
           `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${prebuiltVersion}/${prebuiltTarget}${fileEnding}`
         )
       } catch {
-        prebuiltPath = await tc.downloadTool(
-          `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${fallbackVersion}/${prebuiltTarget}${fileEnding}`
-        )
+        core.info('Failed to install main version using fallback version')
+        if (fallbackVersion)
+          prebuiltPath = await tc.downloadTool(
+            `https://github.com/crow-rest/cargo-prebuilt/releases/download/v${fallbackVersion}/${prebuiltTarget}${fileEnding}`
+          )
+        else throw new Error('Could not install cargo-prebuilt')
       }
 
       let prebuiltExtracted
