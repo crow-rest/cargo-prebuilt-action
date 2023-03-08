@@ -114,6 +114,7 @@ function run() {
                 const cachedPath = yield tc.cacheDir(prebuiltExtracted, 'cargo-prebuilt', prebuiltVersion, prebuiltTarget);
                 core.addPath(cachedPath);
                 directory = cachedPath;
+                core.info('Installed cargo-prebuilt');
             }
             // Handle tool downloads
             let installedTools = '';
@@ -152,6 +153,7 @@ function run() {
                         const cachedPath = yield tc.cacheDir(dir, s[0], version, target);
                         core.addPath(cachedPath);
                         installedTools += `${s[0]}@${version}`;
+                        core.info(`Installed ${s[0]} ${version}`);
                     }
                 }
             }

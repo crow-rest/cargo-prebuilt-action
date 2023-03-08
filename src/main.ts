@@ -100,6 +100,7 @@ async function run(): Promise<void> {
 
       core.addPath(cachedPath)
       directory = cachedPath
+      core.info('Installed cargo-prebuilt')
     }
 
     // Handle tool downloads
@@ -150,6 +151,7 @@ async function run(): Promise<void> {
           const cachedPath = await tc.cacheDir(dir, s[0], version, target)
           core.addPath(cachedPath)
           installedTools += `${s[0]}@${version}`
+          core.info(`Installed ${s[0]} ${version}`)
         }
       }
     }
