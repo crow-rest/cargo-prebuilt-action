@@ -89,7 +89,7 @@ function run() {
             const fileEnding = prebuiltTarget.includes('windows')
                 ? '.zip'
                 : '.tar.gz';
-            let directory = tc.find('cargo-prebuilt', prebuiltVersion, prebuiltTarget);
+            const directory = tc.find('cargo-prebuilt', prebuiltVersion, prebuiltTarget);
             core.debug(`Found cargo-prebuilt tool cache at ${directory}`);
             core.addPath(directory);
             if (directory === '') {
@@ -113,7 +113,6 @@ function run() {
                 }
                 const cachedPath = yield tc.cacheDir(prebuiltExtracted, 'cargo-prebuilt', prebuiltVersion, prebuiltTarget);
                 core.addPath(cachedPath);
-                directory = cachedPath;
                 core.info('Installed cargo-prebuilt');
             }
             // Handle tool downloads
@@ -121,8 +120,12 @@ function run() {
             if (prebuiltTools !== '') {
                 const tools = prebuiltTools.split(',');
                 let target = prebuiltTarget;
-                if (prebuiltToolsTarget !== 'current')
+                if (prebuiltToolsTarget === 'current') {
+                    target = prebuiltTarget;
+                }
+                else {
                     target = prebuiltToolsTarget;
+                }
                 for (const tool of tools) {
                     const s = tool.split('@');
                     let version;
@@ -140,20 +143,24 @@ function run() {
                     }
                     version = version.trim();
                     const toolDir = tc.find(s[0], version, target);
-                    core.debug(`Found ${s[0]} tool cache at ${toolDir}`);
-                    core.addPath(toolDir);
                     if (toolDir === '') {
-                        const dir = `~/.cargo-prebuilt/tools/${s[0]}/${version}`;
-                        yield io.mkdirP(dir);
-                        yield exec.exec(`${directory}/cargo-prebuilt`, ['--no-bin', '--ci', `${s[0]}@${version}`], {
-                            env: {
-                                CARGO_HOME: dir
-                            }
-                        });
-                        const cachedPath = yield tc.cacheDir(dir, s[0], version, target);
+                        let tDir;
+                        try {
+                            tDir = yield tc.downloadTool(`https://github.com/crow-rest/cargo-prebuilt-index/releases/download/${s[0]}-${version}/${target}.tar.gz`);
+                        }
+                        catch (_b) {
+                            throw new Error(`Could not install ${s[0]}@${version}`);
+                        }
+                        tDir = yield tc.extractTar(tDir, `~/.cargo-prebuilt/${s[0]}-${version}`);
+                        const cachedPath = yield tc.cacheDir(tDir, s[0], version, target);
                         core.addPath(cachedPath);
                         installedTools += `${s[0]}@${version}`;
                         core.info(`Installed ${s[0]} ${version}`);
+                    }
+                    else {
+                        core.debug(`Found ${s[0]} tool cache at ${toolDir}`);
+                        installedTools += `${s[0]}@${version}`;
+                        core.addPath(toolDir);
                     }
                 }
             }

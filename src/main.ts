@@ -59,7 +59,7 @@ async function run(): Promise<void> {
       ? '.zip'
       : '.tar.gz'
 
-    let directory = tc.find('cargo-prebuilt', prebuiltVersion, prebuiltTarget)
+    const directory = tc.find('cargo-prebuilt', prebuiltVersion, prebuiltTarget)
     core.debug(`Found cargo-prebuilt tool cache at ${directory}`)
     core.addPath(directory)
 
@@ -99,7 +99,6 @@ async function run(): Promise<void> {
       )
 
       core.addPath(cachedPath)
-      directory = cachedPath
       core.info('Installed cargo-prebuilt')
     }
 
@@ -108,7 +107,11 @@ async function run(): Promise<void> {
     if (prebuiltTools !== '') {
       const tools = prebuiltTools.split(',')
       let target = prebuiltTarget
-      if (prebuiltToolsTarget !== 'current') target = prebuiltToolsTarget
+      if (prebuiltToolsTarget === 'current') {
+        target = prebuiltTarget
+      } else {
+        target = prebuiltToolsTarget
+      }
 
       for (const tool of tools) {
         const s = tool.split('@')
@@ -128,30 +131,33 @@ async function run(): Promise<void> {
             )
           }
         }
-
         version = version.trim()
 
         const toolDir = tc.find(s[0], version, target)
-        core.debug(`Found ${s[0]} tool cache at ${toolDir}`)
-        core.addPath(toolDir)
-
         if (toolDir === '') {
-          const dir = `~/.cargo-prebuilt/tools/${s[0]}/${version}`
-          await io.mkdirP(dir)
-          await exec.exec(
-            `${directory}/cargo-prebuilt`,
-            ['--no-bin', '--ci', `${s[0]}@${version}`],
-            {
-              env: {
-                CARGO_HOME: dir
-              }
-            }
+          let tDir
+          try {
+            tDir = await tc.downloadTool(
+              `https://github.com/crow-rest/cargo-prebuilt-index/releases/download/${s[0]}-${version}/${target}.tar.gz`
+            )
+          } catch {
+            throw new Error(`Could not install ${s[0]}@${version}`)
+          }
+
+          tDir = await tc.extractTar(
+            tDir,
+            `~/.cargo-prebuilt/${s[0]}-${version}`
           )
 
-          const cachedPath = await tc.cacheDir(dir, s[0], version, target)
+          const cachedPath = await tc.cacheDir(tDir, s[0], version, target)
+
           core.addPath(cachedPath)
           installedTools += `${s[0]}@${version}`
           core.info(`Installed ${s[0]} ${version}`)
+        } else {
+          core.debug(`Found ${s[0]} tool cache at ${toolDir}`)
+          installedTools += `${s[0]}@${version}`
+          core.addPath(toolDir)
         }
       }
     }
