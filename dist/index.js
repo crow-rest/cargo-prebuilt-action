@@ -154,16 +154,18 @@ function run() {
                         tDir = yield tc.extractTar(tDir, `~/.cargo-prebuilt/${s[0]}-${version}`);
                         const cachedPath = yield tc.cacheDir(tDir, s[0], version, target);
                         core.addPath(cachedPath);
-                        installedTools += `${s[0]}@${version}`;
+                        installedTools += `${s[0]}@${version},`;
                         core.info(`Installed ${s[0]} ${version}`);
                     }
                     else {
                         core.debug(`Found ${s[0]} tool cache at ${toolDir}`);
-                        installedTools += `${s[0]}@${version}`;
+                        installedTools += `${s[0]}@${version},`;
                         core.addPath(toolDir);
                     }
                 }
             }
+            if (installedTools.length > 0)
+                installedTools = installedTools.slice(0, -1);
             core.setOutput('tools-installed', installedTools);
         }
         catch (error) {
