@@ -54,6 +54,7 @@ jobs:
         with:
           tools: just,rtx-cli@1.21.5,bacon@2.6.0
       - run: just --version
+      - run: which just
       - run: rtx --version
       - run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
   test-macos-tools: # make sure the action works on a clean machine without building
@@ -64,6 +65,7 @@ jobs:
         with:
           tools: just,rtx-cli@1.21.5,bacon@2.6.0
       - run: just --version
+      - run: which just
       - run: rtx --version
       - run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
   test-windows-tools: # make sure the action works on a clean machine without building
@@ -75,6 +77,7 @@ jobs:
           tools: just,bacon@2.6.0,just@1.8.0
       - shell: bash
         run: "[[ \"$(just --version)\" == \"just 1.8.0\" ]]"
+      - run: where.exe just
       - shell: bash
         run: "[[ \"$(bacon --version)\" == \"bacon 2.6.0\" ]]"
   test-dup:
@@ -89,3 +92,4 @@ jobs:
         with:
           tools: just@1.8.0
       - run: "[[ \"$(just --version)\" == \"just 1.8.0\" ]]"
+      - run: which just

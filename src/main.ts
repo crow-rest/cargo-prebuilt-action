@@ -152,16 +152,17 @@ async function run(): Promise<void> {
           const cachedPath = await tc.cacheDir(tDir, s[0], version, target)
 
           core.addPath(cachedPath)
-          installedTools += `${s[0]}@${version}`
+          installedTools += `${s[0]}@${version},`
           core.info(`Installed ${s[0]} ${version}`)
         } else {
           core.debug(`Found ${s[0]} tool cache at ${toolDir}`)
-          installedTools += `${s[0]}@${version}`
+          installedTools += `${s[0]}@${version},`
           core.addPath(toolDir)
         }
       }
     }
 
+    if (installedTools.length > 0) installedTools = installedTools.slice(0, -1)
     core.setOutput('tools-installed', installedTools)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
